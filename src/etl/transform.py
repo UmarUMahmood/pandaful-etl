@@ -1,10 +1,9 @@
 import pandas as pd
-
+import numpy as np
 
 def transform(data):
 
     cleansed = cleanse(data)
-    # normalised = normalise(data)
 
     return cleansed
 
@@ -18,7 +17,7 @@ def cleanse(data):
     # ensure datetime column uses datetime type
     # - errors="coerce" makes any datetime that throws an error become a none type
     data["datetime"] = pd.to_datetime(data["datetime"], errors="coerce")
-    
+
     # ensure total_price is a number
     data["total_price"] = pd.to_numeric(data["total_price"], errors="coerce")
 
@@ -27,16 +26,21 @@ def cleanse(data):
 
         # if location is not a string, remove the row
         if type(data["location"].iloc[x]) != str:
-            data.drop(x, inplace=True)
+            # inplace=True performs the action on the original dataframe
+            data.drop(x, inplace=True, errors="coerce")
+
+        # if payment method is not card or cash, make it a non type for removal
+        if data.loc[x, "payment_method"] != "CARD":
+            if data.loc[x, "payment_method"] != "CASH":
+                data.loc[x] = np.nan
 
         # if the total_price is too high, remove the row because it's likely an error
         if data.loc[x, "total_price"] > 50:
-            data.drop(x, inplace=True)
-            
+            data.drop(x, inplace=True, errors="coerce")
 
     # remove any duplicates, if found
     data.drop_duplicates(inplace=True)
-    
+
     # remove rows that contain empty cells
     # this is last because of coerce
     data = data.dropna()
