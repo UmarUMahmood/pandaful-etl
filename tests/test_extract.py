@@ -22,4 +22,7 @@ def test_extract():
 
     actual = extract(test_csv)
     expected = pd.DataFrame(test_data)
+    
+    # use assert_frame_equal for asserting data frames
+    # the truth value of a data frame is ambiguous and won't work otherwise
     assert_frame_equal(actual, expected)
